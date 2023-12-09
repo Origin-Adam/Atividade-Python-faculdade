@@ -1,0 +1,111 @@
+import tkinter as tk
+from tkinter import ttk
+
+class GerenciadorDeHorarios:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Sistema de Gerenciamento de Horários")
+
+        # Criar widgets
+        self.label_sala = ttk.Label(root, text="Número da Sala:")
+        self.entry_sala = ttk.Entry(root)
+
+        self.label_horario = ttk.Label(root, text="Horário:")
+        self.entry_horario = ttk.Entry(root)
+
+        self.button_adicionar = ttk.Button(root, text="Adicionar", command=self.adicionar_horario)
+
+        # Layout
+        self.label_sala.grid(row=0, column=0, padx=10, pady=10)
+        self.entry_sala.grid(row=0, column=1, padx=10, pady=10)
+
+        self.label_horario.grid(row=1, column=0, padx=10, pady=10)
+        self.entry_horario.grid(row=1, column=1, padx=10, pady=10)
+
+        self.button_adicionar.grid(row=2, column=0, columnspan=2, pady=10)
+
+    def adicionar_horario(self):
+        sala = self.entry_sala.get()
+        horario = self.entry_horario.get()
+
+        
+        print(f"Adicionando horário para a Sala {sala}: {horario}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = GerenciadorDeHorarios(root)
+    root.mainloop()
+
+# Cria uma conexão com o banco de dados
+connection = sqlite3.connect('database.db')
+
+# Cria um cursor para acessar o banco de dados
+cursor = connection.cursor()
+
+# Cria uma tabela para armazenar o ano letivo
+cursor.execute('CREATE TABLE ano_letivo (id INTEGER PRIMARY KEY, ano VARCHAR(10));')
+
+# Insere um registro na tabela do ano letivo
+cursor.execute('INSERT INTO ano_letivo (ano) VALUES ("2023.2");')
+
+# Cria uma tabela para armazenar os turnos
+cursor.execute('CREATE TABLE turnos (id INTEGER PRIMARY KEY, turno VARCHAR(10));')
+
+# Insere registros na tabela dos turnos
+cursor.execute('INSERT INTO turnos (turno) VALUES ("Matutino");')
+cursor.execute('INSERT INTO turnos (turno) VALUES ("Vespertino");')
+cursor.execute('INSERT INTO turnos (turno) VALUES ("Noturno");')
+
+# Cria uma tabela para armazenar as disciplinas
+cursor.execute('CREATE TABLE disciplinas (id INTEGER PRIMARY KEY, disciplina VARCHAR(100));')
+
+# Insere registros na tabela das disciplinas
+cursor.execute('INSERT INTO disciplinas (disciplina) VALUES ("Linguagens em Python");')
+cursor.execute('INSERT INTO disciplinas (disciplina) VALUES ("Objetos Orientados a Java");')
+cursor.execute('INSERT INTO disciplinas (disciplina) VALUES ("Introdução a C");')
+cursor.execute('INSERT INTO disciplinas (disciplina) VALUES ("PHP");')
+cursor.execute('INSERT INTO disciplinas (disciplina) VALUES ("JavaScript");')
+
+# Cria uma tabela para armazenar os professores
+cursor.execute('CREATE TABLE professores (id INTEGER PRIMARY KEY, nome VARCHAR(100), email VARCHAR(100));')
+
+# Gera nomes e emails aleatórios para os professores
+nomes = ['Mário', 'Letícia', 'Victor', 'João']
+emails = [f'{nome}@example.com' for nome in nomes]
+
+for i in range(len(nomes)):
+    cursor.execute('INSERT INTO professores (nome, email) VALUES (?, ?)', (nomes[i], emails[i]))
+
+# Cria uma tabela para armazenar os horários das aulas
+cursor.execute('CREATE TABLE horarios (id INTEGER PRIMARY KEY, dia VARCHAR(10), turno VARCHAR(10), disciplina VARCHAR(100), professor VARCHAR(100), sala VARCHAR(10));')
+
+# Gera horários aleatórios para as aulas
+dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+turnos = ['Matutino', 'Vespertino', 'Noturno']
+disciplinas = ['Linguagens em Python', 'Objetos Orientados a Java', 'Introdução a C', 'PHP', 'JavaScript']
+professores = ['Mário', 'Letícia', 'Victor', 'João']
+salas = ['211', '212', '213', '214', '215']
+
+for i in range(100):
+    dia = dias[random.randint(0, 5)]
+    turno = turnos[random.randint(0, 2)]
+    disciplina = disciplinas[random.randint(0, 4)]
+    professor = professores[random.randint(0, 3)]
+    sala = salas[random.randint(0, 4)]
+
+    # Verifica se o horário não está em conflito
+    for horario in cursor.execute('SELECT * FROM horarios WHERE dia = ? AND turno = ? AND disciplina = ? AND professor = ?', (dia, turno, disciplina, professor)):
+        if horario[5] == sala:
+            continue
+
+    cursor.execute('INSERT INTO horarios (dia, turno, disciplina, professor, sala) VALUES (?, ?, ?, ?, ?)', (dia, turno, disciplina, professor, sala))
+
+# Salva as alterações no banco de dados
+connection.commit()
+
+# Fecha a conexão com o banco de dados
+connection.close()
+
+# Inicializa a janela principal
+
+
